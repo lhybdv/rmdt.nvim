@@ -2,15 +2,17 @@ mod fmt;
 mod types;
 mod swap;
 mod utils;
+mod opts;
 
 use nvim_oxi::api::{self,  types::*};
 use nvim_oxi::{self as oxi, Dictionary};
+use opts::Opts;
 use oxi::Function;
 use oxi::api::opts::CreateCommandOpts;
 
 #[oxi::module]
 fn rmdt() -> oxi::Result<Dictionary> {
-    let setup = Function::from_fn::<_, oxi::Error>(move |()| {
+    let setup = Function::from_fn::<_, oxi::Error>(move |_: Opts| {
         let opts = CreateCommandOpts::builder()
             .bang(true)
             .nargs(CommandNArgs::ZeroOrOne)
