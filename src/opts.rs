@@ -1,4 +1,4 @@
-use nvim_oxi::{self as oxi, api, lua, print, Dictionary, Function, Object};
+use nvim_oxi::{self as oxi, lua, Object};
 use oxi::conversion::{self, FromObject, ToObject};
 use oxi::serde::{Deserializer, Serializer};
 use serde::{Deserialize, Serialize};
