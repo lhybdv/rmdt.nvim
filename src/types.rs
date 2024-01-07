@@ -6,3 +6,8 @@ pub(crate) enum Align {
     Left,
     Right,
 }
+
+pub(crate) struct Bar {
+    pub col: usize,
+    pub pos: usize
+}
