@@ -25,7 +25,18 @@ fn rmdt() -> oxi::Result<Dictionary> {
             Ok(())
         };
 
+        let r_col_swap = |_args: CommandArgs| {
+            if let Err(e) = swap::col_swap() {
+                api::err_writeln(e.to_string().as_str())
+            }
+            Ok(())
+        };
+
         if let Err(e) = api::create_user_command("RFormatTable", r_format_table, &opts) {
+            api::err_writeln(e.to_string().as_str());
+        }
+
+        if let Err(e) = api::create_user_command("RColumnSwap", r_col_swap, &opts) {
             api::err_writeln(e.to_string().as_str());
         }
         Ok(())

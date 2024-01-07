@@ -1,51 +1,57 @@
-// use nvim_oxi::api::{self, Window};
-// use crate::utils;
+use nvim_oxi::api::{self, Window};
+use oxi::api::Buffer;
+use rayon::iter::IntoParallelIterator;
+use crate::utils::*;
+use crate::fmt;
+use crate::utils::get_end_bars;
+use nvim_oxi::{self as oxi};
 
-// fn col_under_cursor() -> api::Result<usize>{
-// 	let line = api::get_current_line()?;
-//     let win = Window::current();
-// 	let (_, col_pos) = win.get_cursor();
-// 	let mut pos = 0;
-// 	let mut prev_pos = 0;
-// 	let mut col = 0;
+fn col_under_cursor() -> oxi::Result<usize> {
+	let line = api::get_current_line()?;
+    let win = Window::current();
+	let (_, col_pos) = win.get_cursor()?;
 
-//     while let Some(index) = line[prev_pos + 1..].find('|') {
-//         pos = index + prev_pos + 1;
+    let bars = get_end_bars(&line);
+    if let Some(b) = bars.iter().find(|b| b.pos >= col_pos) {
+        return Ok(b.col);
+    }
+    Ok(0)
+}
 
-// 		if pos <= col_pos {
-// 			col += 1;
-//         } else {
-// 			return Ok(col);
-//         }
-// 		prev_pos = pos;
-//     }
-// 	Ok(col)
-// }
+fn line_col_swap(line: &str, col: usize) -> String {
+    let pos_0;
+    let pos_1;
+    let pos_2;
+    if col == 0 {
+        pos_0 = 0;
+        pos_1 = col_start(line, 1);
+        pos_2 = col_start(line, 2);
+    } else {
+        pos_0 = col_start(line, col - 1);
+        pos_1 = col_start(line, col);
+        pos_2 = col_start(line, col + 1);
+    }
+    format!("{}{}|{}{}", 
+        &line[..=pos_0], &line[pos_1+1..pos_2],
+        &line[pos_0+1..pos_1], &line[pos_2..])
+}
 
-// fn col_swap () -> oxi::Result<()> {
-// 	let col_1 = co_under_cursor();
-// 	let col_2 = col_1 - 1;
-// 	if col_2 == 0 { 
-//         return;
-//     }
+use rayon::prelude::*;
 
-// 	let (first_row, last_row, lines)= utils::get_markdown_table()?;
+pub(crate) fn col_swap () -> oxi::Result<()> {
+	let col = col_under_cursor()?;
 
-// 	for i =1, #lines do
-// 		let cell_1 = utils::get_cell_text(lines, i, col_1);
-// 		let cell_2 = utils::get_cell_text(lines, i, col_2);
-// 		lines = set_cell_text(lines, i, col_1, cell_2)
-// 		lines = set_cell_text(lines, i, col_2, cell_1)
-// 	end
-// 	local max_widths, alignements = compute_widths_and_alignments(lines)
-// 	format_all_rows(lines, max_widths, alignements)
+	let (first_row, last_row, mut lines)= get_markdown_table()?;
 
-// 	vim.api.nvim_buf_set_lines(0, first_char[1], last_char[1], false, lines)
+    (&mut lines).into_par_iter().for_each(|line| {
+		*line = line_col_swap(line, col)
+    });
+	let (max_widths, aligns) = compute_widths_and_aligns(&mut lines);
+	fmt::format_all_rows(&mut lines, &max_widths, &aligns);
 
-// 	local column_title_1 = get_cell_text(lines, 1, col_1)
-// 	local column_title_2 = get_cell_text(lines, 1, col_2)
-// 	vim.api.nvim_echo({{"MarkdownTable: swapped column "..
-// 							col_2.." ("..column_title_2..") with column "..
-// 							col_1.." ("..column_title_1..")"}}, false, {})
+    let lines: Vec<&str> = lines.iter().map(|s| s.as_ref()).collect();
+    let mut buf = Buffer::current();
+    buf.set_lines(first_row-1..=last_row, false, lines)?;
 
-// })
+    Ok(())
+}
