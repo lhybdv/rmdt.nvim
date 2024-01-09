@@ -48,6 +48,11 @@ pub(crate) fn col_swap () -> oxi::Result<()> {
 
 	let (first_row, last_row, mut lines)= get_markdown_table()?;
 
+    let t_line = lines[0].clone();
+    let (pos_0, pos_1, pos_2) = get_rltv_bar_pos(&t_line, col);
+    let title_0 = t_line[pos_0+1..pos_1].trim();
+    let title_1 = t_line[pos_1+1..pos_2].trim();
+
     (&mut lines).into_par_iter().for_each(|line| {
 		*line = line_col_swap(line, col)
     });
@@ -57,6 +62,10 @@ pub(crate) fn col_swap () -> oxi::Result<()> {
     let lines: Vec<&str> = lines.iter().map(|s| s.as_ref()).collect();
     let mut buf = Buffer::current();
     buf.set_lines(first_row-1..=last_row, false, lines)?;
+
+    api::echo([("Column swapped:", None)], false)?;
+    api::echo([(title_0, None)], false)?;
+    api::echo([(title_1, None)], false)?;
 
     Ok(())
 }
