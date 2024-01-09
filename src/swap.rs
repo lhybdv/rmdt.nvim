@@ -18,7 +18,7 @@ fn col_under_cursor() -> oxi::Result<usize> {
     Ok(0)
 }
 
-fn line_col_swap(line: &str, col: usize) -> String {
+fn get_rltv_bar_pos(line: &str, col: usize) -> (usize, usize, usize) {
     let pos_0;
     let pos_1;
     let pos_2;
@@ -31,6 +31,11 @@ fn line_col_swap(line: &str, col: usize) -> String {
         pos_1 = col_start(line, col);
         pos_2 = col_start(line, col + 1);
     }
+    (pos_0, pos_1, pos_2)
+}
+
+fn line_col_swap(line: &str, col: usize) -> String {
+    let (pos_0, pos_1, pos_2) = get_rltv_bar_pos(line, col);
     format!("{}{}|{}{}", 
         &line[..=pos_0], &line[pos_1+1..pos_2],
         &line[pos_0+1..pos_1], &line[pos_2..])
