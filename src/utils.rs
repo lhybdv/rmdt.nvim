@@ -90,6 +90,10 @@ pub(crate) fn compute_widths_and_aligns (lines: &mut [String])
             *line = format!("|{}", line);
         }
 
+        if !line.ends_with('|') {
+            line.push('|')
+        }
+
         if is_lign_row(line) {
             aligns = compute_aligns(line);
             continue;
