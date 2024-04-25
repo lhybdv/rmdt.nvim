@@ -9,8 +9,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-nvim-oxi = {version = "0.4.1", features = ["neovim-nightly"]}
-regex = "1.10.2"
+nvim-oxi = { features = ["neovim-nightly"], git = "https://github.com/noib3/nvim-oxi.git"}
+regex = "1.10.4"
 once_cell = "1.19.0"
-rayon = "1.8.0"
-serde = "1.0.195"
+rayon = "1.10.0"
+serde = "1.0.198"
