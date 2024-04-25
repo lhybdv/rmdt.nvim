@@ -25,7 +25,7 @@ pub(crate) fn get_markdown_table ()
     let buf = Buffer::current();
     // Get whole table
     let oxi_lines = 
-        buf.get_lines(first_row-1..=last_row, false)?;
+        buf.get_lines(first_row-1..last_row, false)?;
 
     let lines = oxi_lines.into_iter()
         .map(|l| l.to_string_lossy()
