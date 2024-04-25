@@ -129,7 +129,7 @@ pub fn format_table () -> oxi::Result<()> {
     
     let mut buf = Buffer::current();
     let lines: Vec<&str> = lines.iter().map(|s| &**s).collect();
-    api::echo([("Markdown Table formatted", None)], false)?;
     buf.set_lines(first_row-1..last_row, false, lines)?;
+    api::echo([("Markdown Table formatted", None)], false, &Default::default())?;
     Ok(())
 }

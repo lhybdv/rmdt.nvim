@@ -5,14 +5,13 @@ mod utils;
 mod opts;
 
 use nvim_oxi::api::{self,  types::*};
-use nvim_oxi::{self as oxi, Dictionary};
-use opts::Opts;
+use nvim_oxi::{self as oxi, Dictionary, Error, Result};
 use oxi::Function;
 use oxi::api::opts::CreateCommandOpts;
 
-#[oxi::module]
-fn rmdt() -> oxi::Result<Dictionary> {
-    let setup = Function::from_fn::<_, oxi::Error>(move |_: Opts| {
+#[oxi::plugin]
+fn rmdt() -> Result<Dictionary> {
+    let setup = Function::from_fn::<_, Error>(move |()| {
         let opts = CreateCommandOpts::builder()
             .bang(true)
             .nargs(CommandNArgs::ZeroOrOne)
@@ -32,13 +31,10 @@ fn rmdt() -> oxi::Result<Dictionary> {
             Ok(())
         };
 
-        if let Err(e) = api::create_user_command("RFormatTable", r_format_table, &opts) {
-            api::err_writeln(e.to_string().as_str());
-        }
+        api::create_user_command("RFormatTable", r_format_table, &opts)?;
 
-        if let Err(e) = api::create_user_command("RColumnSwap", r_col_swap, &opts) {
-            api::err_writeln(e.to_string().as_str());
-        }
+        api::create_user_command("RColumnSwap", r_col_swap, &opts)?;
+
         Ok(())
     });
 
